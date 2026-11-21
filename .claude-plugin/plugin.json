@@ -1,0 +1,8 @@
+{
+  "name": "lykeion-cli",
+  "version": "1.0.0",
+  "author": {
+    "name": "Lykeion"
+  },
+  "description": "Operate Lykeion through the authenticated local CLI."
+}

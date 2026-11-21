@@ -1,0 +1,4 @@
+interface:
+  display_name: "Lykeion CLI"
+  short_description: "Operate Lykeion through the local CLI"
+  default_prompt: "Use $lykeion to check my Lykeion board for blocked studies and pending Decisions."

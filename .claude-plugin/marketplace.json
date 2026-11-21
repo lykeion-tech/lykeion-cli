@@ -1,0 +1,15 @@
+{
+  "name": "lykeion",
+  "owner": {
+    "name": "Lykeion"
+  },
+  "metadata": {
+    "description": "The Lykeion CLI skill for Claude Code."
+  },
+  "plugins": [
+    {
+      "name": "lykeion-cli",
+      "source": "./"
+    }
+  ]
+}

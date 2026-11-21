@@ -1,0 +1,51 @@
+name: CLI compatibility
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: '23 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Check lyk (${{ matrix.release }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        release: [v0.1.8, latest]
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
+      - name: Download and verify the released lyk CLI
+        env:
+          GH_TOKEN: ${{ github.token }}
+          LYK_RELEASE: ${{ matrix.release }}
+        run: |
+          set -euo pipefail
+          release=$(mktemp -d)
+          cd "$release"
+          tags=()
+          if [[ "$LYK_RELEASE" != latest ]]; then
+            tags+=("$LYK_RELEASE")
+          fi
+          gh release download "${tags[@]}" --repo lykeion-tech/lykeion \
+            --pattern 'lyk-cli-*-linux-amd64.tar.gz' --pattern SHA256SUMS
+
+          shopt -s nullglob
+          archives=(lyk-cli-*-linux-amd64.tar.gz)
+          test "${#archives[@]}" -eq 1
+          archive="${archives[0]}"
+          awk -v file="$archive" '$2 == file { print; count++ } END { if (count != 1) exit 1 }' \
+            SHA256SUMS > "$archive.sha256"
+          sha256sum --check "$archive.sha256"
+          tar -xOzf "$archive" lyk > lyk
+          chmod 755 lyk
+          echo "$release" >> "$GITHUB_PATH"
+      - run: python3 scripts/check-cli.py
